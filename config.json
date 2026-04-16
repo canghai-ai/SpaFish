@@ -1,0 +1,28 @@
+{
+  "indicators": [
+    {
+      "color": "#f59e0b",
+      "label": "EMA20",
+      "period": 20,
+      "type": "ema"
+    },
+    {
+      "color": "#938a8a",
+      "label": "EMA60",
+      "period": 60,
+      "type": "ema"
+    },
+    {
+      "color": "#10b981",
+      "label": "EMA120",
+      "period": 120,
+      "type": "ema"
+    },
+    {
+      "color": "#6969f2",
+      "label": "EMA240",
+      "period": 240,
+      "type": "ema"
+    }
+  ]
+}

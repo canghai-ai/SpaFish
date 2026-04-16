@@ -1,0 +1,11 @@
+# SpaFish - K线伪装报告 摸鱼神器
+
+# Web框架
+Flask==3.0.3
+werkzeug==3.0.3
+
+# 股票数据源
+pytdx>=1.72
+
+# 生产环境部署（可选）
+# gunicorn==21.2.0

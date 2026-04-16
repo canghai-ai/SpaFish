@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标配置</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f7f8fa;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: rgba(55,65,81,0.12);
+            color: #374151;
+            border: 1px solid rgba(55,65,81,0.22);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(55,65,81,0.22);
+            border-color: rgba(55,65,81,0.38);
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .indicator-limit {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: normal;
+        }
+
+        /* 指标列表 */
+        .indicator-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .indicator-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            transition: box-shadow 0.2s;
+        }
+        .indicator-item:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+        .indicator-item .drag-handle {
+            color: #9ca3af;
+            cursor: grab;
+            font-size: 16px;
+            user-select: none;
+        }
+
+        .item-index {
+            font-size: 13px;
+            color: #9ca3af;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .item-type {
+            display: flex;
+            gap: 0;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .type-btn {
+            padding: 5px 12px;
+            border: none;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            color: #374151;
+            transition: background 0.15s;
+        }
+        .type-btn:hover { background: #f3f4f6; }
+        .type-btn.active { background: #374151; color: white; }
+
+        .item-period-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .item-period-label { font-size: 12px; color: #6b7280; }
+        .item-period {
+            width: 70px;
+            padding: 5px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .item-period:focus { outline: none; border-color: #374151; }
+
+        .item-label-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .item-label-label { font-size: 12px; color: #6b7280; flex-shrink: 0; }
+        .item-label {
+            flex: 1;
+            padding: 5px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .item-label:focus { outline: none; border-color: #374151; }
+
+        .item-color-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .item-color-label { font-size: 12px; color: #6b7280; }
+        .item-color {
+            width: 36px;
+            height: 30px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 2px;
+        }
+
+        .item-remove {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .item-remove:hover { color: #c0392b; background: #fef2f2; }
+
+        .add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 10px;
+            border: 1.5px dashed #d1d5db;
+            border-radius: 5px;
+            background: transparent;
+            color: #6b7280;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+        .add-btn:hover { border-color: #374151; color: #374151; background: #f9fafb; }
+        .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* 预览区域 */
+        .preview-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .preview-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .preview-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* 底部按钮 */
+        .footer-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-primary {
+            background: rgba(55,65,81,0.14);
+            color: #374151;
+            border: 1px solid rgba(55,65,81,0.26);
+        }
+        .btn-primary:hover {
+            background: rgba(55,65,81,0.24);
+            border-color: rgba(55,65,81,0.42);
+        }
+        .btn-secondary {
+            background: rgba(229,231,235,0.6);
+            color: #374151;
+            border: 1px solid rgba(209,213,219,0.8);
+        }
+        .btn-secondary:hover {
+            background: rgba(209,213,219,0.8);
+            border-color: rgba(156,163,175,0.8);
+        }
+
+        /* 提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #374151;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 13px;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+        .toast.success { background: #059669; }
+        .toast.error { background: #dc2626; }
+
+        /* 说明区域 */
+        .help-text {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 12px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">⚙️ 指标配置</div>
+            <a href="/" class="back-btn">← 返回K线图</a>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">
+                <span>📈 技术指标列表</span>
+                <span class="indicator-limit" id="countLabel">0 / 5</span>
+            </div>
+            <div class="indicator-list" id="indicatorList"></div>
+            <button class="add-btn" id="addBtn" onclick="addIndicator()">＋ 添加指标</button>
+            <div class="help-text">
+                支持 <strong>MA</strong>（简单移动平均）和 <strong>EMA</strong>（指数移动平均）两种类型。<br>
+                周期参数范围：2 ~ 250。每个指标可自定义标签名和颜色，最多配置 5 个。
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-title">预览</div>
+            <div class="preview-list" id="previewList"></div>
+        </div>
+
+        <div class="footer-bar">
+            <button class="btn btn-secondary" onclick="resetDefault()">恢复默认</button>
+            <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const DEFAULT_COLORS = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6'];
+        const MAX_INDICATORS = 5;
+
+        let indicators = [];
+
+        // 初始化
+        async function init() {
+            try {
+                const resp = await fetch('/api/config');
+                const data = await resp.json();
+                if (data.success && data.data.indicators) {
+                    indicators = data.data.indicators;
+                }
+            } catch (e) {
+                indicators = getDefaultIndicators();
+            }
+            render();
+        }
+
+        function getDefaultIndicators() {
+            return [
+                { type: 'ma', period: 5, color: '#f59e0b', label: 'MA5' },
+                { type: 'ma', period: 10, color: '#ef4444', label: 'MA10' },
+                { type: 'ma', period: 20, color: '#10b981', label: 'MA20' },
+            ];
+        }
+
+        function render() {
+            const list = document.getElementById('indicatorList');
+            const countLabel = document.getElementById('countLabel');
+            const addBtn = document.getElementById('addBtn');
+            const previewList = document.getElementById('previewList');
+
+            countLabel.textContent = `${indicators.length} / ${MAX_INDICATORS}`;
+            addBtn.disabled = indicators.length >= MAX_INDICATORS;
+
+            if (indicators.length === 0) {
+                list.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px 0;font-size:13px;">暂无指标，点击下方按钮添加</div>';
+            } else {
+                list.innerHTML = indicators.map((ind, i) => `
+                    <div class="indicator-item" data-index="${i}">
+                        <span class="item-index">${i + 1}</span>
+                        <div class="item-type">
+                            <button class="type-btn ${ind.type === 'ma' ? 'active' : ''}"
+                                onclick="setType(${i}, 'ma')">MA</button>
+                            <button class="type-btn ${ind.type === 'ema' ? 'active' : ''}"
+                                onclick="setType(${i}, 'ema')">EMA</button>
+                        </div>
+                        <div class="item-period-wrap">
+                            <span class="item-period-label">周期</span>
+                            <input class="item-period" type="number" min="2" max="250"
+                                value="${ind.period}"
+                                oninput="setPeriod(${i}, this.value)"
+                                onblur="autoLabel(${i})">
+                        </div>
+                        <div class="item-label-wrap">
+                            <span class="item-label-label">标签</span>
+                            <input class="item-label" type="text" maxlength="10"
+                                value="${escapeHtml(ind.label)}"
+                                oninput="setLabel(${i}, this.value)">
+                        </div>
+                        <div class="item-color-wrap">
+                            <span class="item-color-label">颜色</span>
+                            <input class="item-color" type="color"
+                                value="${ind.color}"
+                                oninput="setColor(${i}, this.value)">
+                        </div>
+                        <button class="item-remove" onclick="removeIndicator(${i})" title="删除">×</button>
+                    </div>
+                `).join('');
+            }
+
+            // 预览
+            if (indicators.length === 0) {
+                previewList.innerHTML = '<span style="color:#9ca3af;font-size:13px;">暂无指标</span>';
+            } else {
+                previewList.innerHTML = indicators.map(ind => `
+                    <div class="preview-tag">
+                        <div class="preview-color" style="background:${ind.color}"></div>
+                        <span>${escapeHtml(ind.label)} (${ind.type.toUpperCase()} ${ind.period})</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function addIndicator() {
+            if (indicators.length >= MAX_INDICATORS) return;
+            const idx = indicators.length;
+            const defaultPeriods = [5, 10, 20, 30, 60];
+            const period = defaultPeriods[idx] || (idx + 1) * 5;
+            const type = 'ma';
+            const color = DEFAULT_COLORS[idx % DEFAULT_COLORS.length];
+            indicators.push({ type, period, color, label: `${type.toUpperCase()}${period}` });
+            render();
+        }
+
+        function removeIndicator(i) {
+            indicators.splice(i, 1);
+            render();
+        }
+
+        function setType(i, type) {
+            indicators[i].type = type;
+            // 自动更新标签
+            autoLabel(i);
+            render();
+        }
+
+        function setPeriod(i, val) {
+            const p = Math.max(2, Math.min(250, parseInt(val) || 2));
+            indicators[i].period = p;
+        }
+
+        function autoLabel(i) {
+            const ind = indicators[i];
+            const p = Math.max(2, Math.min(250, parseInt(ind.period) || 2));
+            ind.period = p;
+            // 如果标签还是默认格式（MA/EMA+数字），自动更新
+            if (/^(MA|EMA)\d+$/i.test(ind.label)) {
+                ind.label = `${ind.type.toUpperCase()}${p}`;
+            }
+            render();
+        }
+
+        function setLabel(i, val) {
+            indicators[i].label = val;
+        }
+
+        function setColor(i, val) {
+            indicators[i].color = val;
+            // 实时更新预览
+            const previewList = document.getElementById('previewList');
+            const dots = previewList.querySelectorAll('.preview-color');
+            if (dots[i]) dots[i].style.background = val;
+        }
+
+        function resetDefault() {
+            if (confirm('确定恢复为默认配置？')) {
+                indicators = getDefaultIndicators();
+                render();
+            }
+        }
+
+        async function saveConfig() {
+            // 收集最新输入值（防止DOM和数据不同步）
+            const items = document.querySelectorAll('.indicator-item');
+            items.forEach((item, i) => {
+                const periodInput = item.querySelector('.item-period');
+                const labelInput = item.querySelector('.item-label');
+                if (periodInput) {
+                    const p = Math.max(2, Math.min(250, parseInt(periodInput.value) || 2));
+                    indicators[i].period = p;
+                }
+                if (labelInput) {
+                    indicators[i].label = labelInput.value.trim() || `${indicators[i].type.toUpperCase()}${indicators[i].period}`;
+                }
+            });
+
+            try {
+                const resp = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ indicators })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    showToast('配置已保存', 'success');
+                    render();
+                } else {
+                    showToast(data.error || '保存失败', 'error');
+                }
+            } catch (e) {
+                showToast('保存失败：' + e.message, 'error');
+            }
+        }
+
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast show' + (type ? ' ' + type : '');
+            setTimeout(() => { t.className = 'toast'; }, 2500);
+        }
+
+        init();
+    </script>
+{% include 'foot.html' %}
+</body>
+</html>
